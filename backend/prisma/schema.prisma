@@ -1,0 +1,67 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User{
+  id Int @id @default(autoincrement())
+  address String
+  tasks Task[]
+}
+
+model Task{
+  id Int @id @default(autoincrement())
+  amount String
+  paymentSignature String
+  options Option[]
+  userId Int
+  user User @relation(fields: [userId],references: [id])
+  submissions Submission[]
+}
+
+model Option{
+  id Int @id @default(autoincrement())
+  imageUrl String
+  optionId Int
+  taskId Int 
+  task Task @relation(fields: [taskId],references: [id])
+  submissions Submission[]
+}
+
+
+model Worker{
+  id Int @id @default(autoincrement())
+  address String
+  submissions Submission[]
+  balanceId Int @unique
+  balance Balance @relation(fields: [balanceId],references: [id])
+}
+
+model Submission{
+  id Int @id @default(autoincrement())
+  workerId Int
+  taskId Int
+  optinoId Int
+  amount String
+  worker Worker @relation(fields: [workerId],references: [id])
+  task  Task @relation(fields: [taskId],references: [id])
+  option Option @relation(fields: [optinoId],references: [id])
+}
+
+model Balance{
+  id Int @id @default(autoincrement())
+  pendingAmount String
+  lockedAmount String
+  worker Worker?
+}
