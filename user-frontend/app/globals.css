@@ -70,3 +70,34 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+body {
+  font-family: var(--font-inter);
+}
+
+.main__container {
+  max-width: 1280px;
+}
+.inner__container {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+  height: 100%;
+  width: 100%;
+}
+@media (max-width: 1280px) {
+  .inner__container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+@media (min-width: 1360px) {
+  .inner__container {
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+  .main__container {
+    margin: 0 auto;
+  }
+}
