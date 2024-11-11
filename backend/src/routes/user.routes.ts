@@ -97,4 +97,32 @@ user.post("/task", authMiddleware, async (c) => {
   }
 });
 
+user.get("/task", authMiddleware, async (c) => {
+  const userId = c.user?.userId;
+  if (!userId) {
+    return c.json({ error: "User not found in context" }, 403);
+  }
+  try {
+    const tasks = await prisma.task.findMany({
+      where: {
+        userId: Number(userId),
+      },
+      include: {
+        options: {
+          include: {
+            _count: {
+              select: {
+                submissions: true,
+              },
+            },
+          },
+        },
+      },
+    });
+    return c.json({tasks},200)
+  } catch (error) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
 export default user;
