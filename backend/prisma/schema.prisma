@@ -22,6 +22,7 @@ model User{
 
 model Task{
   id Int @id @default(autoincrement())
+  title String @default("Select the most clickable thumbnail")
   amount String
   paymentSignature String
   options Option[]
