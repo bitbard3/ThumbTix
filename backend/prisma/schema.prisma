@@ -53,7 +53,7 @@ model Submission{
   workerId Int
   taskId Int
   optinoId Int
-  amount String
+  amount String @unique
   worker Worker @relation(fields: [workerId],references: [id])
   task  Task @relation(fields: [taskId],references: [id])
   option Option @relation(fields: [optinoId],references: [id])
