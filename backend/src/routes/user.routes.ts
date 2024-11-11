@@ -3,6 +3,7 @@ import { getSignedDFileUrl } from "../utils/s3/getSignedFileUrl";
 import { sign } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
+import { createTaskSchema } from "../validations";
 
 const user = new Hono();
 
@@ -55,6 +56,42 @@ user.get("/signedurl", authMiddleware, async (c) => {
       expiresIn: 60 * 10,
     });
     return c.json({ url }, 200);
+  } catch (error) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+user.post("/task", authMiddleware, async (c) => {
+  // TODO:Verify transaction signataure and extract amount from the signataure
+
+  const userId = c.user?.userId;
+  if (!userId) {
+    return c.json({ error: "User not found in context" }, 403);
+  }
+  const body = await c.req.json();
+  const parseData = createTaskSchema.safeParse(body);
+  if (!parseData.success) {
+    return c.json({ msg: "Invalid Inputs" }, 411);
+  }
+  try {
+    const task = await prisma.$transaction(async (tx) => {
+      const task = await tx.task.create({
+        data: {
+          title: parseData.data.title,
+          amount: "1",
+          paymentSignature: parseData.data.transactionSignature,
+          userId: Number(userId),
+        },
+      });
+      await tx.option.createMany({
+        data: parseData.data.options.map((option) => ({
+          imageUrl: option.imageUrl,
+          taskId: task.id,
+        })),
+      });
+      return task;
+    });
+    return c.json({ id: task.id }, 200);
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
   }
