@@ -2,11 +2,11 @@ import { Hono } from "hono";
 import { getSignedDFileUrl } from "../utils/s3/getSignedFileUrl";
 import { sign } from "hono/jwt";
 import prisma from "../../prisma/db";
+import { authMiddleware } from "../middlewares/auth.middleware";
 
 const user = new Hono();
 
 user.post("/signin", async (c) => {
- 
   // TODO: add sign verification logic here
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT secret doesnt exist");
@@ -20,33 +20,34 @@ user.post("/signin", async (c) => {
       },
     });
   } catch (error) {
-   return c.json({msg:"Something went wrong"},500)
+    return c.json({ msg: "Something went wrong" }, 500);
   }
-  if(existingUser){
-    const token = await sign({userId:existingUser.id},process.env.JWT_SECRET)
-    return c.json({token})
-  }
-  else{
+  if (existingUser) {
+    const token = await sign(
+      { userId: existingUser.id },
+      process.env.JWT_SECRET
+    );
+    return c.json({ token });
+  } else {
     try {
       const user = await prisma.user.create({
-        data:{
-          address:hardCodedAddress
-        }
-      })
-      const token = await sign({userId:user.id},process.env.JWT_SECRET)
-      return c.json({token})
-
+        data: {
+          address: hardCodedAddress,
+        },
+      });
+      const token = await sign({ userId: user.id }, process.env.JWT_SECRET);
+      return c.json({ token });
     } catch (error) {
-      return c.json({msg:"Something went wrong"},500) 
+      return c.json({ msg: "Something went wrong" }, 500);
     }
   }
-
 });
 
-user.get("/signedurl", async (c) => {
-  //TODO:get user id from db(setup auth)
-
-  const userId = 1;
+user.get("/signedurl", authMiddleware, async (c) => {
+  const userId = c.user?.userId;
+  if (!userId) {
+    return c.json({ error: "User not found in context" }, 403);
+  }
   try {
     const fileType = c.req.query("filetype") || "jpg";
     const url = await getSignedDFileUrl({
