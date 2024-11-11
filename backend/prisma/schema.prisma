@@ -34,7 +34,6 @@ model Task{
 model Option{
   id Int @id @default(autoincrement())
   imageUrl String
-  optionId Int
   taskId Int 
   task Task @relation(fields: [taskId],references: [id])
   submissions Submission[]
