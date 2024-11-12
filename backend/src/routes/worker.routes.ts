@@ -73,4 +73,34 @@ worker.get("/balance", authMiddleware, async (c) => {
   }
 });
 
+worker.get("/nexttask", authMiddleware, async (c) => {
+  const userId = c.user?.userId;
+  if (!userId) {
+    return c.json({ error: "User not found in context" }, 403);
+  }
+  try {
+    const task = await prisma.task.findFirst({
+      where: {
+        done: false,
+        submissions: {
+          none: {
+            workerId: Number(userId),
+          },
+        },
+      },
+      select: {
+        title: true,
+        options: true,
+      },
+    });
+    if (!task) {
+      return c.json({ msg: "You dont have any more task" }, 411);
+    } else {
+      return c.json({ task }, 200);
+    }
+  } catch (error) {
+    return c.json({ msg: "Something went wrong" }, 500);
+  }
+});
+
 export default worker;
