@@ -29,6 +29,7 @@ model Task{
   userId Int
   user User @relation(fields: [userId],references: [id])
   submissions Submission[]
+  done Boolean @default(false)
 }
 
 model Option{
