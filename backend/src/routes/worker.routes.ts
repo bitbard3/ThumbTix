@@ -115,7 +115,7 @@ worker.post("/submission", authMiddleware, async (c) => {
     const amount = BigInt(task.amount) / BigInt(TOTAL_WORKER);
     try {
       const submission = await prisma.$transaction(async (tx) => {
-        const submission = tx.submission.create({
+        const submission = await tx.submission.create({
           data: {
             taskId: parseData.data.taskId,
             optionId: parseData.data.optionId,
@@ -123,7 +123,7 @@ worker.post("/submission", authMiddleware, async (c) => {
             amount,
           },
         });
-        tx.worker.update({
+        await tx.worker.update({
           where: {
             id: Number(userId),
           },
@@ -139,7 +139,7 @@ worker.post("/submission", authMiddleware, async (c) => {
         });
         return submission;
       });
-     return  c.json({ task, submission:{...submission,amount:submission.amount.toString()} }, 200);
+     return  c.json({ task, submission:{...submission,amount:amount.toString()} }, 200);
     } catch (error) {
         console.log(error)
       return c.json({ msg: "Something went wrong" }, 500);
