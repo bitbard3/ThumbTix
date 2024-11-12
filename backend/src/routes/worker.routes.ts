@@ -32,8 +32,8 @@ worker.post("/signin", async (c) => {
       const user = await prisma.$transaction(async (tx) => {
         const balance = await tx.balance.create({
           data: {
-            lockedAmount: "0",
-            pendingAmount: "0",
+            lockedAmount: BigInt("0"),
+            pendingAmount: BigInt("0"),
           },
         });
         const user = await tx.worker.create({
@@ -102,5 +102,6 @@ worker.get("/nexttask", authMiddleware, async (c) => {
     return c.json({ msg: "Something went wrong" }, 500);
   }
 });
+
 
 export default worker;

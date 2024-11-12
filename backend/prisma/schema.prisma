@@ -23,7 +23,7 @@ model User{
 model Task{
   id Int @id @default(autoincrement())
   title String @default("Select the most clickable thumbnail")
-  amount String
+  amount BigInt
   paymentSignature String
   options Option[]
   userId Int
@@ -53,16 +53,16 @@ model Submission{
   id Int @id @default(autoincrement())
   workerId Int
   taskId Int
-  optinoId Int
-  amount String
+  optionId Int
+  amount BigInt
   worker Worker @relation(fields: [workerId],references: [id])
   task  Task @relation(fields: [taskId],references: [id])
-  option Option @relation(fields: [optinoId],references: [id])
+  option Option @relation(fields: [optionId],references: [id])
 }
 
 model Balance{
   id Int @id @default(autoincrement())
-  pendingAmount String
-  lockedAmount String
+  pendingAmount BigInt
+  lockedAmount BigInt
   worker Worker?
 }

@@ -78,7 +78,7 @@ user.post("/task", authMiddleware, async (c) => {
       const task = await tx.task.create({
         data: {
           title: parseData.data.title,
-          amount: "1",
+          amount: BigInt("1"),
           paymentSignature: parseData.data.transactionSignature,
           userId: Number(userId),
         },
