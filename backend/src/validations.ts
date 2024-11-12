@@ -1,4 +1,4 @@
-import {string, z} from 'zod'
+import {z} from 'zod'
 
 export const createTaskSchema = z.object({
     title:z.string().optional(),
@@ -6,4 +6,8 @@ export const createTaskSchema = z.object({
     options:z.array(z.object({
         imageUrl:z.string()
     }))
+})
+export const createSubmissionSchema = z.object({
+    taskId:z.number(),
+    optionId:z.number()
 })
