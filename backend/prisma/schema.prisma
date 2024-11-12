@@ -65,5 +65,4 @@ model Balance{
   pendingAmount BigInt
   lockedAmount BigInt
   worker Worker?
-  workerId Int @unique
 }
