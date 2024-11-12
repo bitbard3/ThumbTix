@@ -1,0 +1,1 @@
+export const LAMPORTS_DECIMAL = 1000_000_000n

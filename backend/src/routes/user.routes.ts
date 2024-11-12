@@ -4,6 +4,7 @@ import { sign } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { createTaskSchema } from "../validations";
+import { LAMPORTS_DECIMAL } from "../config/constants";
 
 const user = new Hono();
 
@@ -78,7 +79,7 @@ user.post("/task", authMiddleware, async (c) => {
       const task = await tx.task.create({
         data: {
           title: parseData.data.title,
-          amount: BigInt("1"),
+          amount: BigInt("1") * LAMPORTS_DECIMAL,
           paymentSignature: parseData.data.transactionSignature,
           userId: Number(userId),
         },
@@ -119,7 +120,7 @@ user.get("/task", authMiddleware, async (c) => {
         },
       },
     });
-    return c.json({tasks},200)
+    return c.json({ tasks }, 200);
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
   }
