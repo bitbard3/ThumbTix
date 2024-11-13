@@ -58,6 +58,7 @@ model Submission{
   worker Worker @relation(fields: [workerId],references: [id])
   task  Task @relation(fields: [taskId],references: [id])
   option Option @relation(fields: [optionId],references: [id])
+  @@unique([taskId,workerId])
 }
 
 model Balance{
