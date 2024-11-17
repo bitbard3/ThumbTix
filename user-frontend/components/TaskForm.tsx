@@ -14,9 +14,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_FILE_TYPES = ["image/jpeg", "image/png", "application/pdf"];
+import { ALLOWED_FILE_TYPE, MAX_FILE_SIZE } from "@/config/fileTypes";
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: "This field is required" }),
@@ -30,7 +28,7 @@ const FormSchema = z.object({
         .refine((file) => file instanceof File, "Please upload a file")
         .refine((file) => file.size <= MAX_FILE_SIZE, `Max file size is 5MB`)
         .refine(
-          (file) => ACCEPTED_FILE_TYPES.includes(file.type),
+          (file) => ALLOWED_FILE_TYPE.includes(file.type),
           "Only .jpg, .png, and .pdf files are accepted"
         )
     )
@@ -102,7 +100,7 @@ export function TaskForm() {
                 <Input
                   type="file"
                   multiple
-                  accept={ACCEPTED_FILE_TYPES.join(",")}
+                  accept={ALLOWED_FILE_TYPE.join(",")}
                   onChange={(e) => {
                     const files = Array.from(e.target.files || []);
                     field.onChange(files);
