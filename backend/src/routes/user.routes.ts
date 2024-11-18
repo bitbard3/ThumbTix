@@ -52,11 +52,12 @@ user.get("/signedurl", authMiddleware, async (c) => {
   }
   try {
     const fileType = c.req.query("filetype") || "jpg";
+    const fileName = `${userId}/${Math.random()}/${Date.now()}.${fileType}`;
     const url = await getSignedDFileUrl({
-      fileName: `${userId}/${Math.random()}/${Date.now()}.${fileType}`,
+      fileName,
       expiresIn: 60 * 10,
     });
-    return c.json({ url }, 200);
+    return c.json({ url, fileName }, 200);
   } catch (error) {
     return c.json({ error: "Internal server error" }, 500);
   }
