@@ -1,8 +1,17 @@
 import { Hono } from "hono";
 import userRouter from "./routes/user.routes";
 import workerRouter from "./routes/worker.routes";
-
+import { cors } from "hono/cors";
 const app = new Hono().basePath("/api");
+
+app.use(
+  "/*",
+  cors({
+    origin: "*",
+    allowMethods: ["GET", "POST", "PUT", "DELETE"],
+    allowHeaders: ["Authorization", "Content-Type"],
+  })
+);
 
 app.route("/user", userRouter);
 app.route("/worker", workerRouter);
