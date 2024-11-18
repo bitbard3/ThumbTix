@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { ALLOWED_FILE_TYPE, MAX_FILE_SIZE } from "@/config/fileTypes";
+import axios from "axios";
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: "This field is required" }),
@@ -32,9 +33,16 @@ const FormSchema = z.object({
           "Only .jpg, .png, and .pdf files are accepted"
         )
     )
-    .min(1, "Please upload at least one file")
+    .min(2, "Please upload at least two files")
     .max(5, "You can upload a maximum of 5 files"),
 });
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL;
+
+type OptionType = {
+  imageUrl: string;
+};
 
 export function TaskForm() {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -46,13 +54,74 @@ export function TaskForm() {
     },
   });
 
-  function onSubmit(data: z.infer<typeof FormSchema>) {
-    console.log(data);
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      const optionArray: OptionType[] = [];
+
+      console.log("Starting file uploads:", data.files.length, "files");
+
+      await Promise.all(
+        data.files.map(async (file, index) => {
+          console.log(`Processing file ${index + 1}:`, file.name);
+
+          const signedUrl = await axios.get(
+            `${BACKEND_URL}/api/user/signedurl?filetype=${
+              file.name.split(".")[1]
+            }`,
+            {
+              headers: {
+                Authorization:
+                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
+              },
+            }
+          );
+          console.log(
+            `Got signed URL for file ${index + 1}:`,
+            signedUrl.data.fileName
+          );
+
+          await axios.put(signedUrl.data.url, file, {
+            headers: {
+              "Content-Type": file.type,
+            },
+          });
+          console.log(`Uploaded file ${index + 1} to S3`);
+
+          optionArray.push({
+            imageUrl: `${CDN_URL}/${signedUrl.data.fileName}`,
+          });
+          console.log(
+            `Added file ${index + 1} to optionArray:`,
+            optionArray[optionArray.length - 1]
+          );
+        })
+      );
+
+      console.log("All files processed. optionArray:", optionArray);
+
+      const res = await axios.post(
+        `${BACKEND_URL}/api/user/task`,
+        {
+          title: data.title,
+          transactionSignature: "1234",
+          options: optionArray,
+        },
+        {
+          headers: {
+            Authorization:
+              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
+          },
+        }
+      );
+      console.log("Task created:", res.data);
+    } catch (error) {
+      console.error("Error in onSubmit:", error);
+    }
   }
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-2/3 space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
         <FormField
           control={form.control}
           name="title"
@@ -114,7 +183,9 @@ export function TaskForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button className="w-full" type="submit">
+          Submit
+        </Button>
       </form>
     </Form>
   );
