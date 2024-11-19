@@ -109,7 +109,11 @@ user.get("/task", authMiddleware, async (c) => {
       where: {
         userId: Number(userId),
       },
-      include: {
+      select: {
+        id: true,
+        title: true,
+        amount: true,
+        done: true,
         options: {
           include: {
             _count: {
