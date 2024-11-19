@@ -121,8 +121,17 @@ user.get("/task", authMiddleware, async (c) => {
         },
       },
     });
-    return c.json({ tasks }, 200);
+    return c.json(
+      {
+        tasks: tasks.map((task) => ({
+          ...task,
+          amount: task.amount.toString(),
+        })),
+      },
+      200
+    );
   } catch (error) {
+    console.log(error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
