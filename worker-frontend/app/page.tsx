@@ -13,8 +13,7 @@ export default function Home() {
                 Earn by analysing images
               </p>
               <p className="text-gray-400 text-xl mt-6 text-center max-w-[60%]">
-                Earn Solana by choosing the best images , simple, fun,
-                rewarding!
+                Earn Solana by choosing the best images, simple, fun, rewarding!
               </p>
               <ShinyButton className="mt-12">
                 Get Started{" "}
