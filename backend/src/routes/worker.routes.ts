@@ -89,7 +89,7 @@ worker.get("/nexttask", authMiddleware, async (c) => {
       return c.json({ task }, 200);
     }
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return c.json({ msg: "Something went wrong" }, 500);
   }
 });
@@ -103,14 +103,18 @@ worker.post("/submission", authMiddleware, async (c) => {
   const parseData = createSubmissionSchema.safeParse(body);
   if (parseData.success) {
     const task = await nextTaskService(userId);
-    const options :number[] = []
-    task.options?.map((option)=>options.push(option.id))
-    if (!task || task.id !== parseData.data.taskId || !options.includes(parseData.data.optionId)) {
+    const options: number[] = [];
+    task.options?.map((option) => options.push(option.id));
+    if (
+      !task ||
+      task.id !== parseData.data.taskId ||
+      !options.includes(parseData.data.optionId)
+    ) {
       return c.json({ msg: "Invalid task or invalid option" }, 411);
     }
-    if(!task.amount){
-        console.log(task)
-        return c.json({ msg: "Something went wrong" }, 500); 
+    if (!task.amount) {
+      console.log(task);
+      return c.json({ msg: "Something went wrong" }, 500);
     }
     const amount = BigInt(task.amount) / BigInt(TOTAL_WORKER);
     try {
@@ -139,9 +143,16 @@ worker.post("/submission", authMiddleware, async (c) => {
         });
         return submission;
       });
-     return  c.json({ task, submission:{...submission,amount:amount.toString()} }, 200);
+      const nextTask = await nextTaskService(userId);
+      return c.json(
+        {
+          task: nextTask,
+          submission: { ...submission, amount: amount.toString() },
+        },
+        200
+      );
     } catch (error) {
-        console.log(error)
+      console.log(error);
       return c.json({ msg: "Something went wrong" }, 500);
     }
   }
