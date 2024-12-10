@@ -6,12 +6,14 @@ interface StaggeredBlurInProps {
   children: ReactNode;
   staggerDelay?: number;
   duration?: number;
+  className?: string;
 }
 
 export const StaggeredBlurIn = ({
   children,
   staggerDelay = 0.2,
   duration = 0.5,
+  className = "",
 }: StaggeredBlurInProps) => {
   const container = {
     hidden: { opacity: 0 },
@@ -42,7 +44,7 @@ export const StaggeredBlurIn = ({
 
   return (
     <motion.div
-      className="w-full h-full"
+      className={`w-full ${className}`}
       variants={container}
       initial="hidden"
       animate="show"
