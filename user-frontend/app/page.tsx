@@ -4,7 +4,7 @@ import { MoveRight } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="bg-black min-h-screen w-screen overflow-hidden">
+    <div className="bg-black z-0 relative min-h-screen w-screen overflow-hidden">
       <StaggeredBlurIn staggerDelay={0.3} duration={0.8}>
         <div className="main__container w-full ">
           <div className="flex flex-col w-full min-h-screen items-center justify-center inner__container">
