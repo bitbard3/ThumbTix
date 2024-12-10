@@ -65,9 +65,7 @@ export function TaskForm() {
           console.log(`Processing file ${index + 1}:`, file.name);
 
           const signedUrl = await axios.get(
-            `${BACKEND_URL}/api/user/signedurl?filetype=${
-              file.name.split(".")[1]
-            }`,
+            `${BACKEND_URL}/signedurl?filetype=${file.name.split(".")[1]}`,
             {
               headers: {
                 Authorization:
@@ -100,7 +98,7 @@ export function TaskForm() {
       console.log("All files processed. optionArray:", optionArray);
 
       const res = await axios.post(
-        `${BACKEND_URL}/api/user/task`,
+        `${BACKEND_URL}/task`,
         {
           title: data.title,
           transactionSignature: "1234",

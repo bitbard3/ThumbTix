@@ -18,7 +18,7 @@ export type UserTaskType = {
 };
 
 export const getTask = async (): Promise<UserTaskType[]> => {
-  const res = await axios.get(`${BACKEND_URL}/api/user/task`, {
+  const res = await axios.get(`${BACKEND_URL}/task`, {
     headers: {
       Authorization:
         "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
