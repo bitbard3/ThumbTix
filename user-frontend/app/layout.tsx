@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Inter } from "next/font/google";
 import Navbar from "@/components/Navbar";
-import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
+import Providers from "./providers";
 
 const inter = Inter({
   weight: ["400", "300", "500", "600", "700", "800"],
@@ -23,10 +23,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${inter.variable} dark  antialiased`}>
-        <StaggeredBlurIn>
+        <Providers>
           <Navbar />
-        </StaggeredBlurIn>
-        {children}
+          {children}
+        </Providers>
       </body>
     </html>
   );
