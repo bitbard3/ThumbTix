@@ -7,6 +7,7 @@ import { createTaskSchema, verifySiginSchema } from "../validations";
 import { LAMPORTS_DECIMAL } from "../config/constants";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
+import { Connection, PublicKey, Transaction } from "@solana/web3.js";
 const user = new Hono();
 
 user.post("/signin", async (c) => {
@@ -77,18 +78,91 @@ user.get("/signedurl", authMiddleware, async (c) => {
 });
 
 user.post("/task", authMiddleware, async (c) => {
-  // TODO:Verify transaction signataure and extract amount from the signataure
-
   const userId = c.user?.userId;
   if (!userId) {
     return c.json({ error: "User not found in context" }, 403);
+  }
+  let user;
+  try {
+    user = await prisma.user.findFirst({
+      where: {
+        id: Number(userId),
+      },
+    });
+  } catch (error) {
+    return c.json({ error: "User not found" }, 404);
+  }
+  if (!user?.address) {
+    return c.json({ error: "You are not authorized" }, 403);
   }
   const body = await c.req.json();
   const parseData = createTaskSchema.safeParse(body);
   if (!parseData.success) {
     return c.json({ msg: "Invalid Inputs" }, 411);
   }
+
   try {
+    const uniqueTaskRes = await prisma.task.findUnique({
+      where: {
+        paymentSignature: parseData.data.transactionSignature,
+      },
+    });
+    if (uniqueTaskRes) {
+      return c.json({ error: "Duplicate transaction" }, 409);
+    }
+  } catch (error) {
+    return c.json({ error: "Internal server error" }, 500);
+  }
+
+  try {
+    const connection = new Connection(process.env.RPC_URL || "");
+    const signature = parseData.data.transactionSignature;
+
+    if (!signature) {
+      return c.json({ msg: "Signature is required" }, 400);
+    }
+    const transactionInfo = await connection.getTransaction(signature, {
+      maxSupportedTransactionVersion: 1,
+    });
+
+    if (!transactionInfo) {
+      return c.json({ error: "Transaction not found" }, 404);
+    }
+
+    if (!transactionInfo.meta?.err == null) {
+      return c.json({ error: "Transaction failed" }, 400);
+    }
+
+    const parentKey = transactionInfo.transaction.message
+      .getAccountKeys()
+      .get(1)
+      ?.toString();
+    const senderKey = transactionInfo.transaction.message
+      .getAccountKeys()
+      .get(0)
+      ?.toString();
+
+    if (!(parentKey === process.env.PARENT_PKEY && senderKey == user.address)) {
+      return c.json(
+        { error: "Transaction details do not match expected values" },
+        400
+      );
+    }
+
+    const preBalance = transactionInfo.meta?.preBalances[1];
+    const postBalance = transactionInfo.meta?.postBalances[1];
+    const networkFee = transactionInfo.meta?.fee;
+
+    if (
+      (preBalance ?? 0) - (postBalance ?? 0) - (networkFee ?? 0) ===
+      parseData.data.amount
+    ) {
+      return c.json(
+        { error: "Transaction details do not match expected values" },
+        400
+      );
+    }
+
     const task = await prisma.$transaction(async (tx) => {
       const task = await tx.task.create({
         data: {
