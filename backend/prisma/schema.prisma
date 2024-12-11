@@ -24,7 +24,7 @@ model Task{
   id Int @id @default(autoincrement())
   title String @default("Select the most clickable thumbnail")
   amount BigInt
-  paymentSignature String
+  paymentSignature String @unique
   options Option[]
   userId Int
   user User @relation(fields: [userId],references: [id])
