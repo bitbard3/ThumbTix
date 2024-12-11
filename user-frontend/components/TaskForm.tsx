@@ -16,6 +16,9 @@ import {
 import { Input } from "@/components/ui/input";
 import { ALLOWED_FILE_TYPE, MAX_FILE_SIZE } from "@/config/fileTypes";
 import axios from "axios";
+import { useState } from "react";
+import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: "This field is required" }),
@@ -39,6 +42,7 @@ const FormSchema = z.object({
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 const CDN_URL = process.env.NEXT_PUBLIC_CDN_URL;
+const PARENT_WALLET = process.env.NEXT_PUBLIC_PARENT_PKEY;
 
 type OptionType = {
   imageUrl: string;
@@ -53,6 +57,9 @@ export function TaskForm() {
       files: [],
     },
   });
+  const [txSign, setTxSign] = useState<string>("");
+  const { publicKey, sendTransaction } = useWallet();
+  const { connection } = useConnection();
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
     try {
@@ -101,8 +108,9 @@ export function TaskForm() {
         `${BACKEND_URL}/task`,
         {
           title: data.title,
-          transactionSignature: "1234",
+          transactionSignature: txSign,
           options: optionArray,
+          amount: data.amount,
         },
         {
           headers: {
@@ -117,9 +125,45 @@ export function TaskForm() {
     }
   }
 
+  const onPayment = async (data: z.infer<typeof FormSchema>) => {
+    const transaction = new Transaction().add(
+      SystemProgram.transfer({
+        fromPubkey: publicKey!,
+        toPubkey: new PublicKey(PARENT_WALLET || ""),
+        lamports: data.amount * 1000000000,
+      })
+    );
+    const {
+      context: { slot: minContextSlot },
+      value: { blockhash, lastValidBlockHeight },
+    } = await connection.getLatestBlockhashAndContext();
+
+    try {
+      const signature = await sendTransaction(transaction, connection, {
+        minContextSlot,
+      });
+      console.log(signature);
+      await connection.confirmTransaction({
+        blockhash,
+        lastValidBlockHeight,
+        signature,
+      });
+      setTxSign(signature);
+    } catch (error) {
+      console.log(error);
+    } finally {
+      console.log(txSign);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
+      <form
+        onSubmit={
+          txSign ? form.handleSubmit(onSubmit) : form.handleSubmit(onPayment)
+        }
+        className="w-full space-y-6"
+      >
         <FormField
           control={form.control}
           name="title"
@@ -182,7 +226,7 @@ export function TaskForm() {
           )}
         />
         <Button className="w-full" type="submit">
-          Submit
+          {txSign ? "Submit" : `Pay`}
         </Button>
       </form>
     </Form>
