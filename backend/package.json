@@ -13,8 +13,11 @@
     "@aws-sdk/client-s3": "^3.687.0",
     "@aws-sdk/s3-request-presigner": "^3.687.0",
     "@prisma/client": "5.22.0",
+    "@solana/web3.js": "^1.95.8",
     "aws-sdk": "^2.1692.0",
+    "bs58": "^6.0.0",
     "hono": "^4.6.9",
+    "tweetnacl": "^1.0.3",
     "zod": "^3.23.8"
   }
 }
