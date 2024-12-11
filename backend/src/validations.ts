@@ -4,6 +4,7 @@ import bs58 from "bs58";
 export const createTaskSchema = z.object({
   title: z.string().optional(),
   transactionSignature: z.string(),
+  amount: z.number(),
   options: z.array(
     z.object({
       imageUrl: z.string(),
