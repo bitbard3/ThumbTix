@@ -3,22 +3,36 @@ import { sign } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { nextTaskService } from "../services/nextTaskService";
-import { createSubmissionSchema } from "../validations";
+import { createSubmissionSchema, verifySiginSchema } from "../validations";
 import { TOTAL_WORKER } from "../config/constants";
+import nacl from "tweetnacl";
+import bs58 from "bs58";
 
 const worker = new Hono();
 
 worker.post("/signin", async (c) => {
-  // TODO: add sign verification logic here
   if (!process.env.JWT_SECRET) {
     throw new Error("JWT secret doesnt exist");
   }
-  const hardCodedAddress = "CcrCWF9bh4D4NrdSyEtCsWfoc5oMgHvCAjYMAUAkmHmt";
+  const body = await c.req.json();
+  const parseData = verifySiginSchema.safeParse(body);
+
+  if (!parseData.success) {
+    return c.json({ msg: "Invalid Inputs" }, 411);
+  }
+  const verify = nacl.sign.detached.verify(
+    new Uint8Array(Buffer.from(parseData.data.message, "utf-8")),
+    new Uint8Array(Buffer.from(parseData.data.signature, "base64")),
+    bs58.decode(parseData.data.publicKey)
+  );
+  if (!verify) {
+    return c.json({ msg: "Invalid signature" }, 500);
+  }
   let existingUser;
   try {
     existingUser = await prisma.worker.findUnique({
       where: {
-        address: hardCodedAddress,
+        address: parseData.data.publicKey,
       },
     });
   } catch (error) {
@@ -41,7 +55,7 @@ worker.post("/signin", async (c) => {
         });
         const user = await tx.worker.create({
           data: {
-            address: hardCodedAddress,
+            address: parseData.data.publicKey,
             balanceId: balance.id,
           },
         });
