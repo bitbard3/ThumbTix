@@ -84,7 +84,15 @@ worker.get("/balance", authMiddleware, async (c) => {
         balance: true,
       },
     });
-    return c.json({ balance: balance?.balance }, 200);
+    return c.json(
+      {
+        balance: {
+          pendingAmount: balance?.balance.pendingAmount.toString(),
+          lockedAmount: balance?.balance.lockedAmount.toString(),
+        },
+      },
+      200
+    );
   } catch (error) {
     return c.json({ msg: "Something went wrong" }, 500);
   }
