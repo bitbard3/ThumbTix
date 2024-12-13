@@ -73,7 +73,7 @@ model Payouts {
   id            Int @id @default(autoincrement())
   workerId      Int
   worker        Worker @relation(fields: [workerId], references: [id])
-  amount        Int
+  amount        BigInt
   signature     String
   status        TxnStatus
 }
