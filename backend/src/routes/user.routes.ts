@@ -7,7 +7,7 @@ import { createTaskSchema, verifySiginSchema } from "../validations";
 import { LAMPORTS_DECIMAL } from "../config/constants";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
-import { Connection, PublicKey, Transaction } from "@solana/web3.js";
+import { Connection } from "@solana/web3.js";
 const user = new Hono();
 
 user.post("/signin", async (c) => {
@@ -167,7 +167,7 @@ user.post("/task", authMiddleware, async (c) => {
       const task = await tx.task.create({
         data: {
           title: parseData.data.title,
-          amount: BigInt("1") * LAMPORTS_DECIMAL,
+          amount: BigInt(parseData.data.amount * LAMPORTS_DECIMAL),
           paymentSignature: parseData.data.transactionSignature,
           userId: Number(userId),
         },
@@ -182,6 +182,7 @@ user.post("/task", authMiddleware, async (c) => {
     });
     return c.json({ id: task.id }, 200);
   } catch (error) {
+    console.log(error);
     return c.json({ error: "Internal server error" }, 500);
   }
 });
