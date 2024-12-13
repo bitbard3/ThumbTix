@@ -47,6 +47,7 @@ model Worker{
   submissions Submission[]
   balanceId Int @unique
   balance Balance @relation(fields: [balanceId],references: [id])
+  payouts       Payouts[]
 }
 
 model Submission{
@@ -66,4 +67,19 @@ model Balance{
   pendingAmount BigInt
   lockedAmount BigInt
   worker Worker?
+}
+
+model Payouts {
+  id            Int @id @default(autoincrement())
+  workerId      Int
+  worker        Worker @relation(fields: [workerId], references: [id])
+  amount        Int
+  signature     String
+  status        TxnStatus
+}
+
+enum TxnStatus {
+  Processing
+  Success
+  Failure
 }
