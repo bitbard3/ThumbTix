@@ -28,8 +28,7 @@ export default function NextTask() {
         setLoading(true);
         const res = await axios.get(`${BACKEND_URL}/nexttask`, {
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
+            Authorization: localStorage.getItem("token"),
           },
         });
         if (!res.data.task.title) {
