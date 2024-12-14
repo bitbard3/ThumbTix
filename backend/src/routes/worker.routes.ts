@@ -208,7 +208,7 @@ worker.put("/payout", authMiddleware, async (c) => {
   }
 
   const lockKey = `payout:worker:${userId}:${crypto.randomUUID()}`;
-
+  let balanceRes: { pendingAmount: number; lockedAmount: number } | null = null;
   try {
     const result = await withLock(redis, lockKey, async () => {
       const worker = await prisma.worker.findUnique({
@@ -258,7 +258,7 @@ worker.put("/payout", authMiddleware, async (c) => {
 
       await prisma.$transaction(
         async (tx) => {
-          await tx.worker.update({
+          const res = await tx.worker.update({
             where: {
               id: worker.id,
               balance: {
@@ -277,8 +277,19 @@ worker.put("/payout", authMiddleware, async (c) => {
                 },
               },
             },
+            select: {
+              balance: {
+                select: {
+                  pendingAmount: true,
+                  lockedAmount: true,
+                },
+              },
+            },
           });
-
+          balanceRes = {
+            pendingAmount: Number(res.balance.pendingAmount) / LAMPORTS_DECIMAL,
+            lockedAmount: Number(res.balance.lockedAmount) / LAMPORTS_DECIMAL,
+          };
           await tx.payouts.create({
             data: {
               workerId: worker.id,
@@ -304,6 +315,7 @@ worker.put("/payout", authMiddleware, async (c) => {
         {
           message: "Payout processed successfully",
           signature: result.signature,
+          balance: balanceRes,
         },
         200
       );
