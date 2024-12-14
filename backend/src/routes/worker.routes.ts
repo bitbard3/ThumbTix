@@ -3,12 +3,28 @@ import { sign } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { nextTaskService } from "../services/nextTaskService";
-import { createSubmissionSchema, verifySiginSchema } from "../validations";
-import { TOTAL_WORKER } from "../config/constants";
+import {
+  createSubmissionSchema,
+  payoutSchema,
+  verifySiginSchema,
+} from "../validations";
+import { LAMPORTS_DECIMAL, TOTAL_WORKER } from "../config/constants";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
+import RedisManager from "../utils/redis/config";
+import { withLock } from "../utils/redis/payoutLock";
+import {
+  Connection,
+  Keypair,
+  PublicKey,
+  sendAndConfirmTransaction,
+  SystemProgram,
+  Transaction,
+} from "@solana/web3.js";
 
 const worker = new Hono();
+const redis = RedisManager.getInstance();
+const connection = new Connection(process.env.RPC_URL ?? "");
 
 worker.post("/signin", async (c) => {
   if (!process.env.JWT_SECRET) {
@@ -177,6 +193,129 @@ worker.post("/submission", authMiddleware, async (c) => {
       console.log(error);
       return c.json({ msg: "Something went wrong" }, 500);
     }
+  }
+});
+
+worker.put("/payout", authMiddleware, async (c) => {
+  const userId = c.user?.userId;
+  if (!userId) {
+    return c.json({ error: "User not found in context" }, 403);
+  }
+  const body = await c.req.json();
+  const parseData = payoutSchema.safeParse(body);
+  if (!parseData.success) {
+    return c.json({ msg: "Invalid Inputs" }, 411);
+  }
+
+  const lockKey = `payout:worker:${userId}:${crypto.randomUUID()}`;
+
+  try {
+    const result = await withLock(redis, lockKey, async () => {
+      const worker = await prisma.worker.findUnique({
+        where: { id: Number(userId) },
+        select: {
+          id: true,
+          address: true,
+          balance: {
+            select: {
+              pendingAmount: true,
+            },
+          },
+        },
+      });
+
+      if (!worker) {
+        throw new Error("Worker not found");
+      }
+
+      if (
+        parseData.data.amount >
+        Number(worker.balance.pendingAmount) / LAMPORTS_DECIMAL
+      ) {
+        throw new Error("Insufficient balance");
+      }
+
+      const transaction = new Transaction().add(
+        SystemProgram.transfer({
+          fromPubkey: new PublicKey(process.env.PARENT_PKEY || ""),
+          toPubkey: new PublicKey(worker.address),
+          lamports: parseData.data.amount * LAMPORTS_DECIMAL,
+        })
+      );
+
+      const keypair = Keypair.fromSecretKey(
+        bs58.decode(process.env.WALLET_KEY || "")
+      );
+
+      let signature = "";
+      try {
+        signature = await sendAndConfirmTransaction(connection, transaction, [
+          keypair,
+        ]);
+      } catch (e) {
+        throw new Error("Transaction Failed");
+      }
+
+      await prisma.$transaction(
+        async (tx) => {
+          await tx.worker.update({
+            where: {
+              id: worker.id,
+              balance: {
+                pendingAmount: worker.balance.pendingAmount,
+              },
+            },
+            data: {
+              balance: {
+                update: {
+                  pendingAmount: {
+                    decrement: BigInt(parseData.data.amount * LAMPORTS_DECIMAL),
+                  },
+                  lockedAmount: {
+                    increment: BigInt(parseData.data.amount * LAMPORTS_DECIMAL),
+                  },
+                },
+              },
+            },
+          });
+
+          await tx.payouts.create({
+            data: {
+              workerId: worker.id,
+              amount: BigInt(parseData.data.amount * LAMPORTS_DECIMAL),
+              status: "Success",
+              signature: signature,
+            },
+          });
+
+          return { signature };
+        },
+        {
+          maxWait: 5000,
+          timeout: 10000,
+        }
+      );
+
+      return { signature };
+    });
+
+    if (result) {
+      return c.json(
+        {
+          message: "Payout processed successfully",
+          signature: result.signature,
+        },
+        200
+      );
+    } else {
+      return c.json({ msg: "Payout failed" }, 500);
+    }
+  } catch (error) {
+    console.error("Payout error:", error);
+    return c.json(
+      { msg: error instanceof Error ? error.message : "Something went wrong" },
+      500
+    );
   }
 });
 
