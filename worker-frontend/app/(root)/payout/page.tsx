@@ -74,6 +74,13 @@ export default function Payout() {
                   </p>
                 </div>
                 <PayoutForm
+                  setAmount={(pendingAmount: number, lockedAmount: number) => {
+                    setAmount((prev) => ({
+                      ...prev,
+                      pendingAmount,
+                      lockedAmount,
+                    }));
+                  }}
                   lockedAmount={amount?.lockedAmount || 0}
                   pendingAmount={amount?.pendingAmount || 0}
                 />
