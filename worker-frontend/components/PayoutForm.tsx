@@ -6,13 +6,16 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import axios from "axios";
+import Loader from "./ui/loader";
+import { useState } from "react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
-const PARENT_WALLET = process.env.NEXT_PUBLIC_PARENT_PKEY;
 
 interface TaskFormProps {
   pendingAmount: number;
   lockedAmount: number;
+  setAmount: (pendingAmount: number, lockedAmount: number) => void;
 }
 
 export function PayoutForm(props: TaskFormProps) {
@@ -33,7 +36,34 @@ export function PayoutForm(props: TaskFormProps) {
     },
   });
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {}
+  const [loading, setLoading] = useState<boolean>(false);
+
+  async function onSubmit(data: z.infer<typeof FormSchema>) {
+    try {
+      setLoading(true);
+      const res = await axios.put(
+        `${BACKEND_URL}/payout`,
+        {
+          amount: data.amount,
+        },
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        }
+      );
+      // TODO: Add toast
+      props.setAmount(
+        res.data.balance.pendingAmount,
+        res.data.balance.lockedAmount
+      );
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   function onFormError(errors: FieldErrors<z.infer<typeof FormSchema>>) {
     // TODO: Add toasts
     console.log(errors.amount?.message);
@@ -56,7 +86,8 @@ export function PayoutForm(props: TaskFormProps) {
           )}
         />
 
-        <Button className="w-full" type="submit">
+        <Button className="w-full" disabled={loading}>
+          {loading && <Loader className={"h-5  w-5"} />}
           Withdraw
         </Button>
       </form>
