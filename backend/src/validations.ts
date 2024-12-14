@@ -44,3 +44,7 @@ export const verifySiginSchema = z.object({
   ),
   message: z.string(),
 });
+
+export const payoutSchema = z.object({
+  amount: z.coerce.number().positive(),
+});
