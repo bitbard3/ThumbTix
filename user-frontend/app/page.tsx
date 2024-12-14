@@ -1,6 +1,5 @@
-import ShinyButton from "@/components/ui/ShinyButton";
+import CTAButton from "@/components/CTAButton";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
-import { MoveRight } from "lucide-react";
 
 export default function Home() {
   return (
@@ -16,14 +15,7 @@ export default function Home() {
               analyze, and boost your{" "}
               <span className="text-white font-bold">CTR</span> effortlessly.
             </p>
-            <ShinyButton className="mt-12">
-              Get Started{" "}
-              <MoveRight
-                className="ml-1.5"
-                strokeWidth={1}
-                color="rgb(255,255,255,90%)"
-              />{" "}
-            </ShinyButton>
+            <CTAButton />
           </div>
         </div>
       </StaggeredBlurIn>
