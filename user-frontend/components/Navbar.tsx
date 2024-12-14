@@ -10,6 +10,8 @@ import axios from "axios";
 import { Button } from "./ui/button";
 import { Check } from "lucide-react";
 import Loader from "./ui/loader";
+import { toast } from "sonner";
+import { toastVariant } from "@/config/toasterVariant";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -40,9 +42,19 @@ export default function Navbar() {
           message: Buffer.from(message).toString("utf-8"),
         });
         localStorage.setItem("token", res.data.token);
+        toast.success("Wallet verified", {
+          classNames: {
+            toast: toastVariant["success"],
+          },
+        });
       }
     } catch (error) {
-      // TODO: Add toast to ask them re-verify
+      toast.error("Authentication failed", {
+        description: "Please try again",
+        classNames: {
+          toast: toastVariant["error"],
+        },
+      });
       console.log(error);
     } finally {
       setLoading(false);
