@@ -4,6 +4,8 @@ import ShinyButton from "@/components/ui/ShinyButton";
 import { MoveRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useWalletModal } from "@solana/wallet-adapter-react-ui";
+import { toast } from "sonner";
+import { toastVariant } from "@/config/toasterVariant";
 
 export default function CTAButton() {
   const { setVisible } = useWalletModal();
@@ -14,7 +16,11 @@ export default function CTAButton() {
       router.push("/user/task");
     } else {
       if (localStorage.getItem("walletName")) {
-        // TODO: Add toast to ask them to Authenticate
+        toast.error("Please authenticate to continue", {
+          classNames: {
+            toast: toastVariant["error"],
+          },
+        });
         return;
       }
       setVisible(true);
