@@ -13,7 +13,7 @@ export default function CTAButton() {
 
   const handleClick = async () => {
     if (localStorage.getItem("token")) {
-      router.push("/user/task");
+      router.push("/task");
     } else {
       if (localStorage.getItem("walletName")) {
         toast.error("Please authenticate to continue", {
