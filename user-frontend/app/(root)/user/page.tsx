@@ -1,12 +1,62 @@
+"use client";
 import { Badge } from "@/components/ui/badge";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
-import { getTask } from "@/lib/api";
+import { toastVariant } from "@/config/toasterVariant";
+import axios from "axios";
 import Image from "next/image";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-export default async function UserTask() {
-  const tasks = await getTask();
-  console.log(tasks);
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
+type OptionType = {
+  imageUrl: string;
+  _count: {
+    submissions: number;
+  };
+};
+
+export type UserTaskType = {
+  id: number;
+  title: string;
+  amount: string;
+  done: boolean;
+  options: OptionType[];
+};
+
+export default function UserTask() {
+  const [tasks, setTasks] = useState<UserTaskType[] | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const getTask = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get(`${BACKEND_URL}/task`, {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+          },
+        });
+        setTasks(res.data.tasks);
+      } catch (error) {
+        toast.error("Failed to load task", {
+          classNames: {
+            toast: toastVariant["error"],
+          },
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    getTask();
+  }, []);
+  if (tasks == null || loading) {
+    return (
+      <div className="h-screen flex justify-center flex-col">
+        <div className="w-full flex justify-center text-2xl">Loading...</div>
+      </div>
+    );
+  }
   return (
     <div className="bg-black min-h-screen w-screen overflow-hidden">
       <StaggeredBlurIn staggerDelay={0.3} duration={0.8}>
