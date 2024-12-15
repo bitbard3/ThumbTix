@@ -77,7 +77,7 @@ export default function UserTask() {
                     {Number(task.amount) / 1000000000} SOL
                   </Badge>
                 </div>
-                <div className="flex w-full justify-between mt-5 flex-wrap  space-x-[2%]">
+                <div className="flex w-full justify-center mt-5 flex-wrap gap-y-10  gap-x-[5.29%]">
                   {task.options.map((option) => (
                     <div
                       key={option.imageUrl}
