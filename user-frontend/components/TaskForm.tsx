@@ -19,6 +19,9 @@ import axios from "axios";
 import { useState } from "react";
 import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import Loader from "./ui/loader";
+import { toast } from "sonner";
+import { toastVariant } from "@/config/toasterVariant";
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: "This field is required" }),
@@ -60,68 +63,58 @@ export function TaskForm() {
   const [txSign, setTxSign] = useState<string>("");
   const { publicKey, sendTransaction } = useWallet();
   const { connection } = useConnection();
+  const [loading, setLoading] = useState<boolean>(false);
 
-  async function onSubmit(data: z.infer<typeof FormSchema>) {
+  async function onSubmit(
+    data: z.infer<typeof FormSchema> & { transactionSignature?: string }
+  ) {
     try {
       const optionArray: OptionType[] = [];
-
-      console.log("Starting file uploads:", data.files.length, "files");
-
       await Promise.all(
-        data.files.map(async (file, index) => {
-          console.log(`Processing file ${index + 1}:`, file.name);
-
+        data.files.map(async (file) => {
+          toast(`Uploaded file ${file.name}`);
           const signedUrl = await axios.get(
             `${BACKEND_URL}/signedurl?filetype=${file.name.split(".")[1]}`,
             {
               headers: {
-                Authorization:
-                  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
+                Authorization: localStorage.getItem("token"),
               },
             }
           );
-          console.log(
-            `Got signed URL for file ${index + 1}:`,
-            signedUrl.data.fileName
-          );
-
           await axios.put(signedUrl.data.url, file, {
             headers: {
               "Content-Type": file.type,
             },
           });
-          console.log(`Uploaded file ${index + 1} to S3`);
-
           optionArray.push({
             imageUrl: `${CDN_URL}/${signedUrl.data.fileName}`,
           });
-          console.log(
-            `Added file ${index + 1} to optionArray:`,
-            optionArray[optionArray.length - 1]
-          );
         })
       );
-
-      console.log("All files processed. optionArray:", optionArray);
-
-      const res = await axios.post(
+      await axios.post(
         `${BACKEND_URL}/task`,
         {
           title: data.title,
-          transactionSignature: txSign,
+          transactionSignature: txSign ? txSign : data.transactionSignature,
           options: optionArray,
           amount: data.amount,
         },
         {
           headers: {
-            Authorization:
-              "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjF9.XscY2TKsALxQ9-SGZfoQsqqsRrylaaabTxjf3wKEVs8",
+            Authorization: localStorage.getItem("token"),
           },
         }
       );
-      console.log("Task created:", res.data);
+      toast.success("Task Created", {
+        classNames: { toast: toastVariant["success"] },
+      });
+      form.reset();
+      setTxSign("");
     } catch (error) {
-      console.error("Error in onSubmit:", error);
+      toast.error("Failed to create task", {
+        description: "Please try again",
+        classNames: { toast: toastVariant["error"] },
+      });
     }
   }
 
@@ -139,20 +132,31 @@ export function TaskForm() {
     } = await connection.getLatestBlockhashAndContext();
 
     try {
+      setLoading(true);
       const signature = await sendTransaction(transaction, connection, {
         minContextSlot,
       });
-      console.log(signature);
       await connection.confirmTransaction({
         blockhash,
         lastValidBlockHeight,
         signature,
       });
       setTxSign(signature);
+      toast.success("Transaction Completed", {
+        description: "Creating Task...",
+        classNames: { toast: toastVariant["success"] },
+      });
+      await onSubmit({
+        ...data,
+        transactionSignature: signature,
+      });
     } catch (error) {
-      console.log(error);
+      toast.error("Transaction failed", {
+        description: "Please try again",
+        classNames: { toast: toastVariant["error"] },
+      });
     } finally {
-      console.log(txSign);
+      setLoading(false);
     }
   };
 
@@ -225,8 +229,9 @@ export function TaskForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit">
-          {txSign ? "Submit" : `Pay`}
+        <Button disabled={loading} className="w-full" type="submit">
+          {loading && <Loader className={"h-5 w-5"} />}
+          {txSign ? "Create task" : `Pay`}
         </Button>
       </form>
     </Form>
