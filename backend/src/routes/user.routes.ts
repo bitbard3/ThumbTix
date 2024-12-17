@@ -121,9 +121,28 @@ user.post("/task", authMiddleware, async (c) => {
     if (!signature) {
       return c.json({ msg: "Signature is required" }, 400);
     }
-    const transactionInfo = await connection.getTransaction(signature, {
-      maxSupportedTransactionVersion: 1,
-    });
+    const getTransaction = async (retries = 3) => {
+      for (let attempt = 1; attempt <= retries; attempt++) {
+        try {
+          const transactionInfo = await connection.getTransaction(signature, {
+            maxSupportedTransactionVersion: 1,
+          });
+          if (transactionInfo) {
+            return transactionInfo;
+          }
+          await new Promise((resolve) => setTimeout(resolve, 2000 * attempt));
+        } catch (error) {
+          console.log(
+            `Transaction retrieval attempt ${attempt} failed:`,
+            error
+          );
+        }
+      }
+
+      throw new Error("Transaction not found after multiple attempts");
+    };
+
+    const transactionInfo = await getTransaction();
 
     if (!transactionInfo) {
       return c.json({ error: "Transaction not found" }, 404);
