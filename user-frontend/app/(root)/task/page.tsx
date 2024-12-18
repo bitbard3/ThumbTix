@@ -1,8 +1,10 @@
+"use client";
+import withAuth from "@/components/hoc/withAuth";
 import { TaskForm } from "@/components/TaskForm";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
 import React from "react";
 
-export default function Task() {
+const Task = () => {
   return (
     <div className="bg-black min-h-screen w-screen overflow-hidden">
       <StaggeredBlurIn staggerDelay={0.3} duration={0.8}>
@@ -19,4 +21,5 @@ export default function Task() {
       </StaggeredBlurIn>
     </div>
   );
-}
+};
+export default withAuth(Task);
