@@ -1,4 +1,5 @@
 "use client";
+import withAuth from "@/components/hoc/withAuth";
 import { Badge } from "@/components/ui/badge";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
 import { toastVariant } from "@/config/toasterVariant";
@@ -24,7 +25,7 @@ export type UserTaskType = {
   options: OptionType[];
 };
 
-export default function UserTask() {
+const UserTask = () => {
   const [tasks, setTasks] = useState<UserTaskType[] | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -105,4 +106,5 @@ export default function UserTask() {
       </StaggeredBlurIn>
     </div>
   );
-}
+};
+export default withAuth(UserTask);
