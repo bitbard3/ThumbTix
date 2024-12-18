@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 import { getSignedDFileUrl } from "../utils/s3/getSignedFileUrl";
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { createTaskSchema, verifySiginSchema } from "../validations";
@@ -8,6 +8,7 @@ import { LAMPORTS_DECIMAL } from "../config/constants";
 import nacl from "tweetnacl";
 import bs58 from "bs58";
 import { Connection } from "@solana/web3.js";
+import type { JWTPayload } from "hono/utils/jwt/types";
 const user = new Hono();
 
 user.post("/signin", async (c) => {
@@ -244,6 +245,24 @@ user.get("/task", authMiddleware, async (c) => {
   } catch (error) {
     console.log(error);
     return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+user.get("/verify", async (c) => {
+  const authToken = c.req.header("Authorization");
+  if (!authToken) {
+    return c.json({ msg: "You are not logged in" }, 403);
+  }
+  try {
+    const decoded = (await verify(
+      authToken,
+      process.env.JWT_SECRET || ""
+    )) as JWTPayload & { userId: string };
+    if (decoded.userId) {
+      return c.json({ msg: "You are logged in" }, 200);
+    }
+  } catch (error) {
+    return c.json({ msg: "You are not logged in" }, 403);
   }
 });
 
