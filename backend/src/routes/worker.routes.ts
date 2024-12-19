@@ -139,60 +139,61 @@ worker.post("/submission", authMiddleware, async (c) => {
   }
   const body = await c.req.json();
   const parseData = createSubmissionSchema.safeParse(body);
-  if (parseData.success) {
-    const task = await nextTaskService(userId);
-    const options: number[] = [];
-    task.options?.map((option) => options.push(option.id));
-    if (
-      !task ||
-      task.id !== parseData.data.taskId ||
-      !options.includes(parseData.data.optionId)
-    ) {
-      return c.json({ msg: "Invalid task or invalid option" }, 411);
-    }
-    if (!task.amount) {
-      console.log(task);
-      return c.json({ msg: "Something went wrong" }, 500);
-    }
-    const amount = BigInt(task.amount) / BigInt(TOTAL_WORKER);
-    try {
-      const submission = await prisma.$transaction(async (tx) => {
-        const submission = await tx.submission.create({
-          data: {
-            taskId: parseData.data.taskId,
-            optionId: parseData.data.optionId,
-            workerId: Number(userId),
-            amount,
-          },
-        });
-        await tx.worker.update({
-          where: {
-            id: Number(userId),
-          },
-          data: {
-            balance: {
-              update: {
-                pendingAmount: {
-                  increment: amount,
-                },
+  if (!parseData.success) {
+    return c.json({ msg: "Invalid Inputs" }, 411);
+  }
+  const task = await nextTaskService(userId);
+  const options: number[] = [];
+  task.options?.map((option) => options.push(option.id));
+  if (
+    !task ||
+    task.id !== parseData.data.taskId ||
+    !options.includes(parseData.data.optionId)
+  ) {
+    return c.json({ msg: "Invalid task or invalid option" }, 411);
+  }
+  if (!task.amount) {
+    console.log(task);
+    return c.json({ msg: "Something went wrong" }, 500);
+  }
+  const amount = BigInt(task.amount) / BigInt(TOTAL_WORKER);
+  try {
+    const submission = await prisma.$transaction(async (tx) => {
+      const submission = await tx.submission.create({
+        data: {
+          taskId: parseData.data.taskId,
+          optionId: parseData.data.optionId,
+          workerId: Number(userId),
+          amount,
+        },
+      });
+      await tx.worker.update({
+        where: {
+          id: Number(userId),
+        },
+        data: {
+          balance: {
+            update: {
+              pendingAmount: {
+                increment: amount,
               },
             },
           },
-        });
-        return submission;
-      });
-      const nextTask = await nextTaskService(userId);
-      return c.json(
-        {
-          task: nextTask,
-          submission: { ...submission, amount: amount.toString() },
         },
-        200
-      );
-    } catch (error) {
-      console.log(error);
-      return c.json({ msg: "Something went wrong" }, 500);
-    }
+      });
+      return submission;
+    });
+    const nextTask = await nextTaskService(userId);
+    return c.json(
+      {
+        task: nextTask,
+        submission: { ...submission, amount: amount.toString() },
+      },
+      200
+    );
+  } catch (error) {
+    console.log(error);
+    return c.json({ msg: "Something went wrong" }, 500);
   }
 });
 
