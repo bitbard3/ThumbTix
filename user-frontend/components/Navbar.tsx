@@ -75,6 +75,20 @@ export default function Navbar() {
               <h3 className="text-white font-medium text-lg">ThumbTix</h3>
             </Link>
             <div className="flex items-center gap-x-4">
+              {token && (
+                <>
+                  <Link href={"/task"}>
+                    <p className="text-neutral-400 hover:text-white font-medium mr-8 ">
+                      Create
+                    </p>
+                  </Link>
+                  <Link href={"/user"}>
+                    <p className="text-neutral-400 hover:text-white font-medium mr-8 ">
+                      View
+                    </p>
+                  </Link>
+                </>
+              )}
               {publicKey &&
                 (!token ? (
                   <Button
