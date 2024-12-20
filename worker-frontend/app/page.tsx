@@ -1,6 +1,5 @@
-import ShinyButton from "@/components/ui/ShinyButton";
+import CTAButton from "@/components/CTAButton";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
-import { MoveRight } from "lucide-react";
 
 export default function Home() {
   return (
@@ -15,14 +14,7 @@ export default function Home() {
               <p className="text-gray-400 text-xl mt-6 text-center max-w-[60%]">
                 Earn Solana by choosing the best images, simple, fun, rewarding!
               </p>
-              <ShinyButton className="mt-12">
-                Get Started{" "}
-                <MoveRight
-                  className="ml-1.5"
-                  strokeWidth={1}
-                  color="rgb(255,255,255,90%)"
-                />{" "}
-              </ShinyButton>
+              <CTAButton />
             </div>
           </div>
         </StaggeredBlurIn>
