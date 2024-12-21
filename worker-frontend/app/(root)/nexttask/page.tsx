@@ -109,7 +109,7 @@ export default function NextTask() {
                 <p className="text-white text-3xl font-medium pb-10 text-center">
                   {currentTask?.title}
                 </p>
-                <div className="flex flex-wrap gap-x-[2%] justify-between items-center">
+                <div className="flex flex-wrap gap-y-10  gap-x-[5.29%] justify-center items-center">
                   {currentTask?.options.map((option) => (
                     <div
                       onClick={(e: SyntheticEvent) =>
