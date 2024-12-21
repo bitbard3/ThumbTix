@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import axios from "axios";
 import Loader from "./ui/loader";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -52,21 +53,32 @@ export function PayoutForm(props: TaskFormProps) {
           },
         }
       );
-      // TODO: Add toast
+      toast.success("Withdrawal successfull!", {
+        classNames: {
+          toast: "toast-success",
+        },
+      });
       props.setAmount(
         res.data.balance.pendingAmount,
         res.data.balance.lockedAmount
       );
     } catch (error) {
-      console.log(error);
+      toast.error("Withdrawal successfull!", {
+        classNames: {
+          toast: "toast-error",
+        },
+      });
     } finally {
       setLoading(false);
     }
   }
 
   function onFormError(errors: FieldErrors<z.infer<typeof FormSchema>>) {
-    // TODO: Add toasts
-    console.log(errors.amount?.message);
+    toast.error(errors.amount?.message, {
+      classNames: {
+        toast: "toast-error",
+      },
+    });
   }
   return (
     <Form {...form}>

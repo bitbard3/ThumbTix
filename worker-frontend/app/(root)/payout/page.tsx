@@ -3,6 +3,7 @@ import { PayoutForm } from "@/components/PayoutForm";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Amount {
   pendingAmount: number;
@@ -16,10 +17,6 @@ export default function Payout() {
   const [balanceLoading, setBalanceLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      // TODO:Redirect and show toast
-      return;
-    }
     const getBalance = async () => {
       setBalanceLoading(true);
       try {
@@ -36,7 +33,11 @@ export default function Payout() {
             Number(res.data.balance.lockedAmount) / LAMPORTS_DECIMAL,
         });
       } catch (error) {
-        console.log(error);
+        toast.error("Error loading balances", {
+          classNames: {
+            toast: "toast-error",
+          },
+        });
       } finally {
         setBalanceLoading(false);
       }
