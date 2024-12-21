@@ -4,6 +4,7 @@ import React, { SyntheticEvent, useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 export default function NextTask() {
   interface Option {
     id: number;
@@ -88,13 +89,22 @@ export default function NextTask() {
           },
         }
       );
+      toast("Task Submitted!", {
+        classNames: {
+          toast: "toast-info",
+        },
+      });
       if (!res.data.task.title) {
         setCurrentTask(null);
       } else {
         setCurrentTask(res.data.task);
       }
     } catch (error) {
-      console.log(error);
+      toast.error("Failed to submit task, Try again!", {
+        classNames: {
+          toast: "toast-error",
+        },
+      });
     } finally {
       setLoading(false);
     }
