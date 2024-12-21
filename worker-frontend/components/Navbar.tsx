@@ -11,6 +11,7 @@ import { Button } from "./ui/button";
 import { Check } from "lucide-react";
 import Loader from "./ui/loader";
 import { toast } from "sonner";
+import Link from "next/link";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -69,7 +70,9 @@ export default function Navbar() {
       <div className="w-full  border-b border-neutral-700 border-opacity-70 bg-black">
         <div className="max-w-[1280px] mx-auto px-10">
           <div className="flex items-center justify-between py-4">
-            <h3 className="text-white font-medium text-lg">ThumbTix(Worker)</h3>
+            <Link href={"/"}>
+              <h3 className="text-white font-medium text-lg">ThumbTix</h3>
+            </Link>
             <div className="flex items-center gap-x-4">
               {publicKey &&
                 (!token ? (
