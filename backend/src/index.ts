@@ -2,7 +2,6 @@ import { Hono } from "hono";
 import userRouter from "./routes/user.routes";
 import workerRouter from "./routes/worker.routes";
 import { cors } from "hono/cors";
-import { handle } from "@hono/node-server/vercel";
 const app = new Hono().basePath("/api");
 
 app.use(
@@ -29,4 +28,4 @@ app.all("*", (c) => {
   );
 });
 
-export default handle(app);
+export default app;
