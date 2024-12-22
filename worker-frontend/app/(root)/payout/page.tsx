@@ -1,4 +1,5 @@
 "use client";
+import withAuth from "@/components/hoc/withAuth";
 import { PayoutForm } from "@/components/PayoutForm";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
 import axios from "axios";
@@ -10,7 +11,7 @@ interface Amount {
   lockedAmount: number;
 }
 
-export default function Payout() {
+const Payout = () => {
   const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
   const LAMPORTS_DECIMAL = 1000000000;
   const [amount, setAmount] = useState<Amount | null>(null);
@@ -92,4 +93,5 @@ export default function Payout() {
       </div>
     </>
   );
-}
+};
+export default withAuth(Payout);
