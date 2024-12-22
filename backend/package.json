@@ -5,7 +5,7 @@
   "scripts": {
     "vercel:dev": "npm run build && vercel dev",
     "start": "node ./dist/src/index.js",
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias && npx prisma generate"
   },
   "devDependencies": {
     "@types/bun": "latest",
