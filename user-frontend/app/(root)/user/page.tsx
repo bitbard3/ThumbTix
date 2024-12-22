@@ -85,7 +85,7 @@ const UserTask = () => {
                   {task.options.map((option) => (
                     <div
                       key={option.imageUrl}
-                      className="w-[28%] rounded-lg bg-slate-600 justify-between flex flex-col items-center space-y-2 p-5"
+                      className="lg:w-[28%] w-full rounded-lg bg-slate-600 justify-between flex flex-col items-center space-y-2 p-5"
                     >
                       <Image
                         className="w-full h-auto"
