@@ -1,6 +1,6 @@
 import { Hono } from "hono";
-import userRouter from "../routes/user.routes";
-import workerRouter from "../routes/worker.routes";
+import userRouter from "../src/routes/user.routes";
+import workerRouter from "../src/routes/worker.routes";
 import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
 const app = new Hono().basePath("/api");
