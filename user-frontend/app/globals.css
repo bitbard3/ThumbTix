@@ -108,3 +108,12 @@ button.wallet-adapter-button-trigger {
 .wallet-adapter-button-trigger:not([disabled]):hover {
   background-color: hsl(var(--primary) / 0.9) !important;
 }
+.toast-success {
+  @apply bg-green-500 text-neutral-50 border-green-500 shadow-lg;
+}
+.toast-error {
+  @apply bg-destructive text-destructive-foreground border-destructive shadow-lg;
+}
+.toast-info {
+  @apply bg-background text-foreground border-border shadow-lg;
+}
