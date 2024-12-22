@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-// import userRouter from "../src/routes/user.routes";
+import userRouter from "../src/routes/user.routes";
 import workerRouter from "../src/routes/worker.routes";
 import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
@@ -14,7 +14,7 @@ app.use(
   })
 );
 
-// app.route("/user", userRouter);
+app.route("/user", userRouter);
 app.route("/worker", workerRouter);
 
 app.all("*", (c) => {
