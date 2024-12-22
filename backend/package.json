@@ -17,6 +17,7 @@
   "dependencies": {
     "@aws-sdk/client-s3": "^3.687.0",
     "@aws-sdk/s3-request-presigner": "^3.687.0",
+    "@hono/node-server": "^1.13.7",
     "@prisma/client": "5.22.0",
     "@solana/web3.js": "^1.95.8",
     "aws-sdk": "^2.1692.0",
