@@ -2,9 +2,14 @@
   "name": "backend",
   "module": "index.ts",
   "type": "module",
+  "scripts": {
+    "start": "node ./dist/src/index.js",
+    "build": "tsc && tsc-alias"
+  },
   "devDependencies": {
     "@types/bun": "latest",
-    "prisma": "5.22.0"
+    "prisma": "5.22.0",
+    "tsc-alias": "^1.8.10"
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
