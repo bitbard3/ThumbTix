@@ -5,7 +5,9 @@ import axios from "axios";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
-export default function NextTask() {
+import withAuth from "@/components/hoc/withAuth";
+
+const NextTask = () => {
   interface Option {
     id: number;
     imageUrl: string;
@@ -158,4 +160,5 @@ export default function NextTask() {
       </div>
     </>
   );
-}
+};
+export default withAuth(NextTask);
