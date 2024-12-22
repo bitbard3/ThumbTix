@@ -21,7 +21,6 @@ import { PublicKey, SystemProgram, Transaction } from "@solana/web3.js";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
 import Loader from "./ui/loader";
 import { toast } from "sonner";
-import { toastVariant } from "@/config/toasterVariant";
 
 const FormSchema = z.object({
   title: z.string().min(1, { message: "This field is required" }),
@@ -106,14 +105,14 @@ export function TaskForm() {
         }
       );
       toast.success("Task Created", {
-        classNames: { toast: toastVariant["success"] },
+        classNames: { toast: "toast-success" },
       });
       form.reset();
       setTxSign("");
     } catch (error) {
       toast.error("Failed to create task", {
         description: "Please try again",
-        classNames: { toast: toastVariant["error"] },
+        classNames: { toast: "toast-error" },
       });
     }
   }
@@ -144,7 +143,7 @@ export function TaskForm() {
       setTxSign(signature);
       toast.success("Transaction Completed", {
         description: "Creating Task...",
-        classNames: { toast: toastVariant["success"] },
+        classNames: { toast: "toast-success" },
       });
       await onSubmit({
         ...data,
@@ -153,7 +152,7 @@ export function TaskForm() {
     } catch (error) {
       toast.error("Transaction failed", {
         description: "Please try again",
-        classNames: { toast: toastVariant["error"] },
+        classNames: { toast: "toast-error" },
       });
     } finally {
       setLoading(false);

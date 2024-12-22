@@ -2,7 +2,6 @@
 import withAuth from "@/components/hoc/withAuth";
 import { Badge } from "@/components/ui/badge";
 import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
-import { toastVariant } from "@/config/toasterVariant";
 import axios from "axios";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
@@ -42,7 +41,7 @@ const UserTask = () => {
       } catch (error) {
         toast.error("Failed to load task", {
           classNames: {
-            toast: toastVariant["error"],
+            toast: "toast-error",
           },
         });
       } finally {

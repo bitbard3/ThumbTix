@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { toastVariant } from "@/config/toasterVariant";
 import Loader from "../ui/loader";
 import axios from "axios";
 
@@ -16,7 +15,7 @@ const withAuth = (WrappedComponent: React.ComponentType) => {
     const redirectToLogin = () => {
       toast.error("Please authenticate wallet to continue", {
         classNames: {
-          toast: toastVariant.error,
+          toast: "toast-error",
         },
       });
       setIsAuthenticated(false);
