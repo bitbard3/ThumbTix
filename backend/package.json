@@ -3,12 +3,15 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "start": "node ./dist/api/index.js",
+    "vercel:dev": "npm run build && vercel dev",
+    "start": "node ./dist/src/index.js",
     "build": "tsc && tsc-alias"
   },
   "devDependencies": {
     "@types/bun": "latest",
     "prisma": "5.22.0",
+    "tsx": "^4.19.1",
+    "vercel": "^37.6.2",
     "tsc-alias": "^1.8.10"
   },
   "peerDependencies": {
