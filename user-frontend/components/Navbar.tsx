@@ -17,7 +17,8 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function Navbar() {
   const { publicKey, signMessage } = useWallet();
-  const token = localStorage.getItem("token");
+  const token =
+    typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const [loading, setLoading] = useState<boolean>(false);
 
   const verifyWallet = async () => {

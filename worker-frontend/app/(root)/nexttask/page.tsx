@@ -31,7 +31,10 @@ const NextTask = () => {
         setLoading(true);
         const res = await axios.get(`${BACKEND_URL}/nexttask`, {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         });
         if (!res.data.task.title) {
@@ -87,7 +90,10 @@ const NextTask = () => {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         }
       );

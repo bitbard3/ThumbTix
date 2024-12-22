@@ -76,7 +76,10 @@ export function TaskForm() {
             `${BACKEND_URL}/signedurl?filetype=${file.name.split(".")[1]}`,
             {
               headers: {
-                Authorization: localStorage.getItem("token"),
+                Authorization:
+                  typeof window !== "undefined"
+                    ? localStorage.getItem("token")
+                    : null,
               },
             }
           );
@@ -100,7 +103,10 @@ export function TaskForm() {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         }
       );

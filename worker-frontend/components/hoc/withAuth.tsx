@@ -25,7 +25,10 @@ const withAuth = (WrappedComponent: React.ComponentType) => {
     useEffect(() => {
       const checkAuthentication = async () => {
         try {
-          const token = localStorage.getItem("token");
+          const token =
+            typeof window !== "undefined"
+              ? localStorage.getItem("token")
+              : null;
           if (!token) {
             redirectToLogin();
             return;

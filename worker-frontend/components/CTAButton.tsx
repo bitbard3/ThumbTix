@@ -9,7 +9,7 @@ export default function CTAButton() {
   const { setVisible } = useWalletModal();
   const router = useRouter();
   const handleClick = async () => {
-    if (localStorage.getItem("token")) {
+    if (typeof window !== "undefined" ? localStorage.getItem("token") : null) {
       router.push("nexttask");
     } else {
       if (localStorage.getItem("walletName")) {

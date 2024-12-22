@@ -49,7 +49,10 @@ export function PayoutForm(props: TaskFormProps) {
         },
         {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         }
       );

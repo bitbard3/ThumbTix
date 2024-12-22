@@ -23,7 +23,10 @@ const Payout = () => {
       try {
         const res = await axios.get(`${BACKEND_URL}/balance`, {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         });
 

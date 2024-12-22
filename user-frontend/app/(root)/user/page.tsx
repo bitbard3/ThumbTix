@@ -34,7 +34,10 @@ const UserTask = () => {
         setLoading(true);
         const res = await axios.get(`${BACKEND_URL}/task`, {
           headers: {
-            Authorization: localStorage.getItem("token"),
+            Authorization:
+              typeof window !== "undefined"
+                ? localStorage.getItem("token")
+                : null,
           },
         });
         setTasks(res.data.tasks);
