@@ -1,8 +1,8 @@
 import { Hono } from "hono";
-import userRouter from "../src/routes/user.routes.ts";
-import workerRouter from "../src/routes/worker.routes.ts";
+import userRouter from "./routes/user.routes.js";
+import workerRouter from "./routes/worker.routes.js";
 import { cors } from "hono/cors";
-import { handle } from "hono/vercel";
+import { serve } from "@hono/node-server";
 const app = new Hono().basePath("/api");
 
 app.use(
@@ -28,11 +28,7 @@ app.all("*", (c) => {
     404
   );
 });
-
-const handler = handle(app);
-
-export const GET = handler;
-export const POST = handler;
-export const PATCH = handler;
-export const PUT = handler;
-export const OPTIONS = handler;
+serve({
+  fetch: app.fetch,
+  port: Number(process.env.PORT) || 9009,
+});
