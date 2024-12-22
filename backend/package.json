@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "start": "node ./dist/api/index.js",
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias fix-imports",
+    "fix-imports": "replace-in-file 'from \"(\\..*)\"' 'from \"$1.js\"' dist/**/*.js"
   },
   "devDependencies": {
     "@types/bun": "latest",
@@ -25,6 +26,7 @@
     "hono": "^4.6.9",
     "ioredis": "^5.4.1",
     "redis": "^4.7.0",
+    "replace-in-file": "^8.3.0",
     "tweetnacl": "^1.0.3",
     "zod": "^3.23.8"
   }
