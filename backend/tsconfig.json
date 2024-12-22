@@ -5,7 +5,6 @@
     "jsxImportSource": "hono/jsx",
     "baseUrl": "./",
     "module": "ESNext",
-    "moduleResolution": "Bundler",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -13,6 +12,10 @@
     "types": ["node"],
     "strict": true,
     "outDir": "./dist",
+    "rootDir": ".",
+    "moduleResolution": "node",
+    "allowJs": true,
+    "esModuleInterop": true,
     "skipLibCheck": true
   },
   "tsc-alias": {
