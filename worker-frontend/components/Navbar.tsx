@@ -72,9 +72,25 @@ export default function Navbar() {
         <div className="max-w-[1280px] mx-auto px-10">
           <div className="flex items-center justify-between py-4">
             <Link href={"/"}>
-              <h3 className="text-white font-medium text-lg">ThumbTix</h3>
+              <h3 className="text-white font-medium text-lg">
+                ThumbTix(Worker)
+              </h3>
             </Link>
             <div className="flex items-center gap-x-4">
+              {token && (
+                <>
+                  <Link href={"/nexttask"}>
+                    <p className="text-neutral-400 hover:text-white font-medium mr-8 ">
+                      Tasks
+                    </p>
+                  </Link>
+                  <Link href={"/payout"}>
+                    <p className="text-neutral-400 hover:text-white font-medium mr-8 ">
+                      Payout
+                    </p>
+                  </Link>
+                </>
+              )}
               {publicKey &&
                 (!token ? (
                   <Button
