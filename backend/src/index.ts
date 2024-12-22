@@ -28,4 +28,7 @@ app.all("*", (c) => {
   );
 });
 
-export default app;
+export default {
+  port: process.env.PORT || 9999,
+  fetch: app.fetch,
+};
