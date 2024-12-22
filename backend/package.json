@@ -4,7 +4,7 @@
   "type": "module",
   "scripts": {
     "start": "node ./dist/src/index.js",
-    "build": "tsc && tsc-alias"
+    "build": "tsc && tsc-alias && bun i"
   },
   "devDependencies": {
     "@types/bun": "latest",
