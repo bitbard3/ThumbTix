@@ -102,6 +102,7 @@ const NextTask = () => {
         setCurrentTask(res.data.task);
       }
     } catch (error) {
+      console.log(error);
       toast.error("Failed to submit task, Try again!", {
         classNames: {
           toast: "toast-error",

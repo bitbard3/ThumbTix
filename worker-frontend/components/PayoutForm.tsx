@@ -63,6 +63,7 @@ export function PayoutForm(props: TaskFormProps) {
         res.data.balance.lockedAmount
       );
     } catch (error) {
+      console.log(error);
       toast.error("Withdrawal successfull!", {
         classNames: {
           toast: "toast-error",

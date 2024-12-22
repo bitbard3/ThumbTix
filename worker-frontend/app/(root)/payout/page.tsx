@@ -34,6 +34,7 @@ const Payout = () => {
             Number(res.data.balance.lockedAmount) / LAMPORTS_DECIMAL,
         });
       } catch (error) {
+        console.log(error);
         toast.error("Error loading balances", {
           classNames: {
             toast: "toast-error",
