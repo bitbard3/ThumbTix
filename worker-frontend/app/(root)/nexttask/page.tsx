@@ -125,17 +125,17 @@ const NextTask = () => {
           <div className="main__container w-full">
             <div className="flex flex-col items-center w-full min-h-screen pt-[120px] inner__container">
               <div className="mx-auto flex flex-col">
-                <p className="text-white text-3xl font-medium pb-10 text-center">
+                <p className="text-white text-2xl lg:text-3xl font-medium pb-10 text-center">
                   {currentTask?.title}
                 </p>
-                <div className="flex flex-wrap gap-y-10  gap-x-[5.29%] justify-center items-center">
+                <div className="flex flex-wrap gap-y-10 gap-x-[5.29%] justify-center items-center">
                   {currentTask?.options.map((option) => (
                     <div
                       onClick={(e: SyntheticEvent) =>
                         onSelectHandler(e, option.id)
                       }
                       key={option.id}
-                      className={`w-[28%] rounded-lg cursor-pointer bg-slate-600 justify-between flex flex-col items-center space-y-2 p-5 ${
+                      className={`lg:w-[28%] w-[44%] rounded-lg cursor-pointer bg-slate-600 justify-between flex flex-col items-center space-y-2 p-5 ${
                         option.id === selection
                           ? "outline outline-[12px] outline-[#48BB7879]"
                           : ""
