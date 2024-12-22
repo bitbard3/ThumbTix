@@ -1,5 +1,5 @@
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { sign, verify } from "hono/jwt";
 import prisma from "../../prisma/db";
 import { authMiddleware } from "../middlewares/auth.middleware";
 import { nextTaskService } from "../services/nextTaskService";
@@ -21,6 +21,7 @@ import {
   SystemProgram,
   Transaction,
 } from "@solana/web3.js";
+import type { JWTPayload } from "hono/utils/jwt/types";
 
 const worker = new Hono();
 const redis = RedisManager.getInstance();
@@ -329,6 +330,24 @@ worker.put("/payout", authMiddleware, async (c) => {
       { msg: error instanceof Error ? error.message : "Something went wrong" },
       500
     );
+  }
+});
+
+worker.get("/verify", async (c) => {
+  const authToken = c.req.header("Authorization");
+  if (!authToken) {
+    return c.json({ msg: "You are not logged in" }, 403);
+  }
+  try {
+    const decoded = (await verify(
+      authToken,
+      process.env.JWT_SECRET || ""
+    )) as JWTPayload & { userId: string };
+    if (decoded.userId) {
+      return c.json({ msg: "You are logged in" }, 200);
+    }
+  } catch (error) {
+    return c.json({ msg: "You are not logged in" }, 403);
   }
 });
 
