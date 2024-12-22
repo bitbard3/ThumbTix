@@ -39,6 +39,7 @@ const UserTask = () => {
         });
         setTasks(res.data.tasks);
       } catch (error) {
+        console.log(error);
         toast.error("Failed to load task", {
           classNames: {
             toast: "toast-error",

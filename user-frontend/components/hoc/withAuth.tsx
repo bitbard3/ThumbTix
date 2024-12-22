@@ -39,6 +39,7 @@ const withAuth = (WrappedComponent: React.ComponentType) => {
             setIsAuthenticated(true);
           }
         } catch (error) {
+          console.log(error);
           redirectToLogin();
         } finally {
           setIsLoading(false);

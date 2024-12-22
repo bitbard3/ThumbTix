@@ -110,6 +110,7 @@ export function TaskForm() {
       form.reset();
       setTxSign("");
     } catch (error) {
+      console.log(error);
       toast.error("Failed to create task", {
         description: "Please try again",
         classNames: { toast: "toast-error" },
@@ -150,6 +151,7 @@ export function TaskForm() {
         transactionSignature: signature,
       });
     } catch (error) {
+      console.log(error);
       toast.error("Transaction failed", {
         description: "Please try again",
         classNames: { toast: "toast-error" },
