@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 // import userRouter from "../src/routes/user.routes";
-// import workerRouter from "../src/routes/worker.routes";
+import workerRouter from "../src/routes/worker.routes";
 import { cors } from "hono/cors";
 import { handle } from "hono/vercel";
 const app = new Hono().basePath("/api");
@@ -15,7 +15,7 @@ app.use(
 );
 
 // app.route("/user", userRouter);
-// app.route("/worker", workerRouter);
+app.route("/worker", workerRouter);
 
 app.all("*", (c) => {
   console.log("Received request for:", c.req.url);
