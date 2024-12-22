@@ -3,9 +3,8 @@
   "module": "index.ts",
   "type": "module",
   "scripts": {
-    "build": "tsc",
-    "start": "node dist/api/index.js",
-    "vercel-build": "prisma generate && tsc"
+    "start": "node ./dist/api/index.js",
+    "build": "tsc && tsc-alias"
   },
   "devDependencies": {
     "@types/bun": "latest",
