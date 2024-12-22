@@ -8,7 +8,7 @@ import { StaggeredBlurIn } from "@/components/ui/StaggeredBlurIn";
 import React, { useState } from "react";
 import axios from "axios";
 import { Button } from "./ui/button";
-import { Check } from "lucide-react";
+import { Check, Menu, X } from "lucide-react";
 import Loader from "./ui/loader";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -20,6 +20,11 @@ export default function Navbar() {
   const token =
     typeof window !== "undefined" ? localStorage.getItem("token") : null;
   const [loading, setLoading] = useState<boolean>(false);
+  const [isMenuOpen, setIsMenuOpen] = useState<boolean>(false);
+
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen);
+  };
 
   const verifyWallet = async () => {
     if (!publicKey) {
@@ -74,7 +79,15 @@ export default function Navbar() {
             <Link href={"/"}>
               <h3 className="text-white font-medium text-lg">ThumbTix</h3>
             </Link>
-            <div className="flex items-center gap-x-4">
+            <div className="lg:hidden z-[99] flex items-center">
+              <button
+                className="text-white focus:outline-none"
+                onClick={toggleMenu}
+              >
+                {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              </button>
+            </div>
+            <div className="hidden lg:flex  items-center gap-x-4">
               {token && (
                 <>
                   <Link href={"/task"}>
@@ -113,6 +126,45 @@ export default function Navbar() {
                 <WalletMultiButton />
               )}
             </div>
+            {isMenuOpen && (
+              <div className="fixed top-0 right-0 w-[60%] bg-slate-600 rounded-bl-md  p-5 flex flex-col gap-4 z-50 lg:hidden">
+                <Link href="/task" onClick={toggleMenu}>
+                  <p className="text-white font-medium">Create</p>
+                </Link>
+                <Link href="/user" onClick={toggleMenu}>
+                  <p className="text-white font-medium">View</p>
+                </Link>
+                {publicKey &&
+                  (!token ? (
+                    <Button
+                      className="text-[16px] leading-[48px]"
+                      variant="secondary"
+                      onClick={() => {
+                        verifyWallet();
+                        toggleMenu();
+                      }}
+                      disabled={loading}
+                    >
+                      {loading && <Loader className="h-5 w-5" />}
+                      Authenticate
+                    </Button>
+                  ) : (
+                    <div className="p-1 rounded-full flex items-center justify-center font-medium  bg-green-500 bg-opacity-80">
+                      <p className="text-white">Authenticated</p>
+                    </div>
+                  ))}
+                {publicKey ? (
+                  <WalletDisconnectButton
+                    onClick={() => {
+                      localStorage.removeItem("token");
+                      toggleMenu();
+                    }}
+                  />
+                ) : (
+                  <WalletMultiButton />
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
